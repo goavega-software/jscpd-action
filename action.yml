@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'jscpd-runner-action'
+description: 'A jscpd action which detects dupes in files'
+author: 'Goavega Software'
 inputs:
   milliseconds: # change this
     required: true
