@@ -2,10 +2,13 @@ name: 'jscpd-runner-action'
 description: 'A jscpd action which detects dupes in files'
 author: 'Goavega Software'
 inputs:
-  milliseconds: # change this
+  secret: # change this
     required: true
-    description: 'input description here'
+    description: 'token for the repo, can use {{ secrets.GITHUB_TOKEN }}'
     default: 'default value if applicable'
+  post-as:
+    required: false
+    description: 'post annotations as (default: jscpd)'
 runs:
   using: 'node16'
   main: 'dist/index.js'
