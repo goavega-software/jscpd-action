@@ -114,7 +114,7 @@ async function run(): Promise<void> {
     }
     const currentSha =
       prInfo.repository.pullRequest.commits.nodes[0].commit.oid;
-    // console.log('Commit from GraphQL:', currentSha);
+    core.debug(`Commit from GraphQL: ${currentSha}`);
     const files = prInfo.repository.pullRequest.files.nodes;
 
     const filesToLint = files.map(f => f.path);
