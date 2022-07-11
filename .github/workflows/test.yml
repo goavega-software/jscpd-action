@@ -21,4 +21,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          secret: {{secrets.APP_TOKEN}}
+          secret: ${{secrets.APP_TOKEN}}
