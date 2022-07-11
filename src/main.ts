@@ -43,7 +43,7 @@ async function completeCheck(
   octokit: InstanceType<typeof GitHub>,
   context: Context,
   conclusion: string,
-  output: string
+  output: string[]
 ): Promise<void> {
   await octokit.rest.checks.update({
     ...context.repo,
@@ -51,7 +51,10 @@ async function completeCheck(
     status: 'completed',
     completed_at: new Date().toISOString(),
     conclusion,
-    output
+    output: {
+      title: 'jscpd',
+      summary: output.join(', '),
+    }
   });
 }
 
@@ -126,7 +129,7 @@ async function run(): Promise<void> {
           octokit,
           context,
           'success',
-          filesToLint.join(', ')
+          filesToLint
         ),
       5000
     );

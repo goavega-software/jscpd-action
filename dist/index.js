@@ -59,8 +59,10 @@ function getOrAddCheck(octokit, context, currentSha, postAs) {
 }
 function completeCheck(checkId, octokit, context, conclusion, output) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield octokit.rest.checks.update(Object.assign(Object.assign({}, context.repo), { check_run_id: checkId, status: 'completed', completed_at: new Date().toISOString(), conclusion,
-            output }));
+        yield octokit.rest.checks.update(Object.assign(Object.assign({}, context.repo), { check_run_id: checkId, status: 'completed', completed_at: new Date().toISOString(), conclusion, output: {
+                title: 'jscpd',
+                summary: output.join(', '),
+            } }));
     });
 }
 function run() {
@@ -107,12 +109,12 @@ function run() {
                 return;
             }
             const currentSha = prInfo.repository.pullRequest.commits.nodes[0].commit.oid;
-            // console.log('Commit from GraphQL:', currentSha);
+            core.debug(`Commit from GraphQL: ${currentSha}`);
             const files = prInfo.repository.pullRequest.files.nodes;
             const filesToLint = files.map(f => f.path);
             const checkId = yield getOrAddCheck(octokit, context, currentSha, postAs);
             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                return yield completeCheck(checkId, octokit, context, 'success', filesToLint.join(', '));
+                return yield completeCheck(checkId, octokit, context, 'success', filesToLint);
             }), 5000);
         }
         catch (error) {
