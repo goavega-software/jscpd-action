@@ -67,9 +67,17 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const secret = core.getInput('secret');
+            if (!secret) {
+                core.debug('No secret provided');
+                return;
+            }
             const postAs = core.getInput('post-as') || 'jscpd';
             const octokit = github.getOctokit(secret);
             const context = github.context;
+            if (!context.issue.number) {
+                core.debug('No issue number provided');
+                return;
+            }
             const prInfo = yield octokit.graphql(gql `
         query ($owner: String!, $name: String!, $prNumber: Int!) {
           repository(owner: $owner, name: $name) {
@@ -92,7 +100,7 @@ function run() {
       `, {
                 owner: context.repo.owner,
                 name: context.repo.repo,
-                prNumber: context.issue.number || -1
+                prNumber: context.issue.number
             });
             if (!prInfo || !prInfo.repository || !prInfo.repository.pullRequest) {
                 core.debug('No pull request found');

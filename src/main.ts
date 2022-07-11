@@ -65,6 +65,10 @@ async function run(): Promise<void> {
     const postAs = core.getInput('post-as') || 'jscpd';
     const octokit = github.getOctokit(secret);
     const context = github.context;
+    if (!context.issue.number) {
+      core.debug('No issue number provided');
+      return;
+    }
 
     const prInfo: {
       repository: {
@@ -101,7 +105,7 @@ async function run(): Promise<void> {
       {
         owner: context.repo.owner,
         name: context.repo.repo,
-        prNumber: context.issue.number || -1
+        prNumber: context.issue.number
       }
     );
     if (!prInfo || !prInfo.repository || !prInfo.repository.pullRequest) {
