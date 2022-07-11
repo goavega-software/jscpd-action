@@ -8,7 +8,11 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -88,14 +92,20 @@ function run() {
       `, {
                 owner: context.repo.owner,
                 name: context.repo.repo,
-                prNumber: context.issue.number
+                prNumber: context.issue.number || -1
             });
+            if (!prInfo || !prInfo.repository || !prInfo.repository.pullRequest) {
+                core.debug('No pull request found');
+                return;
+            }
             const currentSha = prInfo.repository.pullRequest.commits.nodes[0].commit.oid;
             // console.log('Commit from GraphQL:', currentSha);
             const files = prInfo.repository.pullRequest.files.nodes;
             const filesToLint = files.map(f => f.path);
             const checkId = yield getOrAddCheck(octokit, context, currentSha, postAs);
-            setTimeout(() => __awaiter(this, void 0, void 0, function* () { return yield completeCheck(checkId, octokit, context, 'success', filesToLint.join(', ')); }), 5000);
+            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                return yield completeCheck(checkId, octokit, context, 'success', filesToLint.join(', '));
+            }), 5000);
         }
         catch (error) {
             if (error instanceof Error)

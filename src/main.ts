@@ -58,6 +58,10 @@ async function completeCheck(
 async function run(): Promise<void> {
   try {
     const secret = core.getInput('secret');
+    if (!secret) {
+      core.debug('No secret provided');
+      return;
+    }
     const postAs = core.getInput('post-as') || 'jscpd';
     const octokit = github.getOctokit(secret);
     const context = github.context;
@@ -97,9 +101,13 @@ async function run(): Promise<void> {
       {
         owner: context.repo.owner,
         name: context.repo.repo,
-        prNumber: context.issue.number
+        prNumber: context.issue.number || -1
       }
     );
+    if (!prInfo || !prInfo.repository || !prInfo.repository.pullRequest) {
+      core.debug('No pull request found');
+      return;
+    }
     const currentSha =
       prInfo.repository.pullRequest.commits.nodes[0].commit.oid;
     // console.log('Commit from GraphQL:', currentSha);
@@ -107,7 +115,17 @@ async function run(): Promise<void> {
 
     const filesToLint = files.map(f => f.path);
     const checkId = await getOrAddCheck(octokit, context, currentSha, postAs);
-    setTimeout(async () => await completeCheck(checkId, octokit, context, 'success', filesToLint.join(', ')), 5000);
+    setTimeout(
+      async () =>
+        await completeCheck(
+          checkId,
+          octokit,
+          context,
+          'success',
+          filesToLint.join(', ')
+        ),
+      5000
+    );
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }
